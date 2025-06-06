@@ -1,10 +1,10 @@
 import boto3
-
+import os
 # connecting to dynamodb local
 dynamodb = boto3.resource(
     'dynamodb',
     region_name='us-east-1',
-    endpoint_url='http://localhost:8000',
+    endpoint_url='http://localhost:8000'
 )
 
 def create_users_table():
