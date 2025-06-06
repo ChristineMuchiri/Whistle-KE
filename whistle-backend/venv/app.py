@@ -1,14 +1,18 @@
-from fastapi import FastAPI, HTTPException, Form
+from fastapi import FastAPI, HTTPException, Form, Header
 import bcrypt
 import boto3
 import os
 from dotenv import load_dotenv
+from jose import JWTError, jwt # type: ignore
+from datetime import datetime, timedelta
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import Depends
 
 load_dotenv()
 
 app = FastAPI()
 
-# user DB
+# DynamoDB setup Local--
 dynamodb = boto3.resource(
     'dynamodb',
     region_name='us-east-1',
@@ -17,6 +21,28 @@ dynamodb = boto3.resource(
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
 )
 users_table = dynamodb.Table("Users")
+
+#JWT config
+SECRET_KEY= "your secret key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+# JWT Utility Functions
+def create_access_token(data: dict, expires_delta: timedelta = None): # type: ignore
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload.get("sub")  # return alias
+    except JWTError:
+        return None
+
+
+# ----Routes-----
 
 @app.get("/")
 async def root():
@@ -43,3 +69,32 @@ async def create_alias(alias: str = Form(...), password: str = Form(...)):
         
     
     return {"message": "Alias created successfully"}
+
+@app.post("/alias")
+async def alias(form_data: OAuth2PasswordRequestForm = Depends()):
+    alias1 = form_data.alias # type: ignore
+    password = form_data.password
+    
+    # lookup user
+    response = users_table.get_item(Key={"alias": alias})
+    user = response.get('Item')
+    if not user:
+        raise HTTPException(status_code=400, detail="Alias not found! Create Aias")
+    
+    if not bcrypt.checkpw(password.encode(), user["password_hash"].encode()):
+        raise HTTPException(status_code=401, detail="Incorrect password")
+    # create and return token
+    token = create_access_token(data=={"sub":alias}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)) # type: ignore
+    return {"access_token": token, "token_type": "bearer"}
+
+@app.get("/protected")
+async def protected_route(authorization: str = Header(...)): # type: ignore
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing Bearer token")
+
+    token = authorization.split(" ")[1]
+    alias = verify_token(token)
+    if not alias:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    return {"message": f"Hello {alias}, you're authenticated!"}
