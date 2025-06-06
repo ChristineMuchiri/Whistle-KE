@@ -23,7 +23,7 @@ dynamodb = boto3.resource(
 users_table = dynamodb.Table("Users")
 
 #JWT config
-SECRET_KEY= "your secret key"
+SECRET_KEY= os.getenv("SECRET_KEY") #TODO:load from AWS Secrets MAnager
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
@@ -32,11 +32,11 @@ def create_access_token(data: dict, expires_delta: timedelta = None): # type: ig
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM) # type: ignore
 
 def verify_token(token: str):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]) # type: ignore
         return payload.get("sub")  # return alias
     except JWTError:
         return None
