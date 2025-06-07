@@ -48,6 +48,7 @@ def verify_token(token: str):
 async def root():
     return {"message": "whistle backend running. Create Alias # Alias"}
 
+# sign up
 @app.post("/create-alias")
 async def create_alias(alias: str = Form(...), password: str = Form(...)):
     #check if user exists
@@ -70,6 +71,7 @@ async def create_alias(alias: str = Form(...), password: str = Form(...)):
     
     return {"message": "Alias created successfully"}
 
+#sign in
 @app.post("/alias")
 async def alias(form_data: OAuth2PasswordRequestForm = Depends()):
     alias1 = form_data.alias # type: ignore
@@ -87,6 +89,7 @@ async def alias(form_data: OAuth2PasswordRequestForm = Depends()):
     token = create_access_token(data=={"sub":alias}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)) # type: ignore
     return {"access_token": token, "token_type": "bearer"}
 
+# protected route
 @app.get("/protected")
 async def protected_route(authorization: str = Header(...)): # type: ignore
     if not authorization.startswith("Bearer "):
@@ -98,3 +101,12 @@ async def protected_route(authorization: str = Header(...)): # type: ignore
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     return {"message": f"Hello {alias}, you're authenticated!"}
+
+# logout
+@app.post("/logout")
+async def logout(authorization: str = Header(...)):
+    if not authorization.startswith("Bearer"):
+        raise HTTPException(status_code=401, detail="Missing Bearer token")
+    
+    return {"message": "Successfulyy logged out. Please clear the token on client"}
+
