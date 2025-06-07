@@ -8,11 +8,15 @@ from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Depends
 import uuid
-
+from typing import Optional, List
+from pydantic import BaseModel
 load_dotenv()
 
 app = FastAPI()
 
+class Leak(BaseModel):
+    description: str
+    
 # DynamoDB setup Local--
 dynamodb = boto3.resource(
     'dynamodb',
@@ -22,6 +26,7 @@ dynamodb = boto3.resource(
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
 )
 users_table = dynamodb.Table("Users")
+leaks_table = dynamodb.Table("WhistleLeaks")
 
 #JWT config
 SECRET_KEY= os.getenv("SECRET_KEY") #TODO:load from AWS Secrets MAnager
@@ -113,14 +118,12 @@ async def logout(authorization: str = Header(...)):
 
 @app.post("/leaks")
 async def create_leak(
+    leak: Leak,
     authorization: str = Header(...),
-    description: str = Form(...),
-    type: str = Form(...),
-    location: str = Form(...)
 ):
     if not authorization.startswith("Bearer"):
         raise HTTPException(status_code=401, detail="Missing Bearer token")
-    toekn = authorization.split(" ")[1]
+    token = authorization.split(" ")[1]
     alias = verify_token(token)
     if not alias:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
@@ -133,13 +136,15 @@ async def create_leak(
         "leak_id": leak_id,
         "alias": alias,
         "timestamp": timestamp,
-        "description": description,
+        "description": leak.description,
     })
     
     return {"message:" "Leak submitted"}
 
 @app.get("/leaks_home")
-async def get_leaks():
-    leaks_table = dynamodb.Table("WhistleLeaks")
+async def get_leaks() -> List[dict]:
     response = leaks_table.scan()
-    return {"leaks": response.get("Items", [])}
+    items = response.get("Items", [])
+    # sorting by timestamp(descending)
+    items.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+    return items
