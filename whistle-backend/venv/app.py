@@ -138,3 +138,8 @@ async def create_leak(
     
     return {"message:" "Leak submitted"}
 
+@app.get("/leaks_home")
+async def get_leaks():
+    leaks_table = dynamodb.Table("WhistleLeaks")
+    response = leaks_table.scan()
+    return {"leaks": response.get("Items", [])}
