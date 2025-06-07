@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Form, Header
+from fastapi import FastAPI, HTTPException, Form, Header, Body
 import bcrypt
 import boto3
 import os
@@ -7,6 +7,7 @@ from jose import JWTError, jwt # type: ignore
 from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Depends
+import uuid
 
 load_dotenv()
 
@@ -109,4 +110,31 @@ async def logout(authorization: str = Header(...)):
         raise HTTPException(status_code=401, detail="Missing Bearer token")
     
     return {"message": "Successfulyy logged out. Please clear the token on client"}
+
+@app.post("/leaks")
+async def create_leak(
+    authorization: str = Header(...),
+    description: str = Form(...),
+    type: str = Form(...),
+    location: str = Form(...)
+):
+    if not authorization.startswith("Bearer"):
+        raise HTTPException(status_code=401, detail="Missing Bearer token")
+    toekn = authorization.split(" ")[1]
+    alias = verify_token(token)
+    if not alias:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    
+    leak_id = str(uuid.uuid4())
+    timestamp = datetime.utcnow().isoformat()
+    
+    leaks_table = dynamodb.Table("WhistleLeaks")
+    leaks_table.put_item(Item={
+        "leak_id": leak_id,
+        "alias": alias,
+        "timestamp": timestamp,
+        "description": description,
+    })
+    
+    return {"message:" "Leak submitted"}
 
