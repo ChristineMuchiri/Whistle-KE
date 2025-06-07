@@ -172,7 +172,7 @@ async def add_comment(
         "timestamp": datetime.utcnow().isoformat()
     }
     try:
-        whistle_table.update_item(
+        leaks_table.update_item(
             Key={"leak_id": leak_id},
             UpdateExpression="SET comments = list_append(if_not_exists(comments, :empty), :c)",
             ExpressionAttributeValues={
@@ -184,3 +184,16 @@ async def add_comment(
         raise HTTPException(status_code=400, detail=str(e))
     
     return {"message": "Comment added"}
+
+# adding likes to a leak
+@app.post("/leaks/{leak_id}/like")
+async def like_leak(leak_id: str):
+    try:
+        leaks_table.update_item(
+            Key={"leak_id": leak_id},
+            UpdateExpression="SET likes = if_not_exists(likes, :zero) + :inc",
+            ExpressionAttributeValues={":inc": 1, ":zero": 0}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"message": "Leak liked"}
