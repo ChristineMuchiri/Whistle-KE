@@ -116,6 +116,7 @@ async def logout(authorization: str = Header(...)):
     
     return {"message": "Successfulyy logged out. Please clear the token on client"}
 
+# post a leak
 @app.post("/leaks")
 async def create_leak(
     leak: Leak,
@@ -137,10 +138,12 @@ async def create_leak(
         "alias": alias,
         "timestamp": timestamp,
         "description": leak.description,
+        "likes": 0,
+        "comments": []
     })
     
     return {"message:" "Leak submitted"}
-
+# load all the leaks
 @app.get("/leaks_home")
 async def get_leaks() -> List[dict]:
     response = leaks_table.scan()
@@ -148,3 +151,36 @@ async def get_leaks() -> List[dict]:
     # sorting by timestamp(descending)
     items.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
     return items
+
+# commenting on a leak
+@app.post("/leaks/{leak_id}/comment")
+async def add_comment(
+    leak_id: str,
+    comment: str = Form(...),
+    authorization: str = Header(...)
+):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing Bearer token")
+    token = authorization.split(" ")[1]
+    alias = verify_token(token)
+    if not alias:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    
+    comment_entry = {
+        "alias": alias,
+        "comment": comment,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    try:
+        whistle_table.update_item(
+            Key={"leak_id": leak_id},
+            UpdateExpression="SET comments = list_append(if_not_exists(comments, :empty), :c)",
+            ExpressionAttributeValues={
+                ":c": [comment_entry],
+                ":empty": []
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    return {"message": "Comment added"}
