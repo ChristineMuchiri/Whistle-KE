@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Form, Header, Body
+from fastapi import FastAPI, HTTPException, Form, Header, Body, Path
 import bcrypt
 import boto3
 import os
@@ -187,13 +187,29 @@ async def add_comment(
 
 # adding likes to a leak
 @app.post("/leaks/{leak_id}/like")
-async def like_leak(leak_id: str):
-    try:
-        leaks_table.update_item(
+async def like_leak(leak_id: str = Path(...),
+                    authorization: str = Header(...)):
+    # verify JWT
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing Bearer token")
+    token = authorization.split(" ")[1]
+    alias = verify_token(token)
+    if not alias:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    # get the leak
+    response = leaks_table.get_item(Key={"leak_id": leak_id})
+    leak = response.get("Item")
+    if not leak:
+        raise HTTPException(status_code=404, detail="Leak not found")
+    
+    liked_by = leak.get("Liked_by", [])
+    # prevent duplicate like
+    if alias in liked_by:
+        raise HTTPException(status_code=400, detail="You already liked this leak")
+    # update: increment like count and add  alias to liked by
+    liked_by.append(alias)
+    leaks_table.update_item(
             Key={"leak_id": leak_id},
-            UpdateExpression="SET likes = if_not_exists(likes, :zero) + :inc",
-            ExpressionAttributeValues={":inc": 1, ":zero": 0}
-        )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    return {"message": "Leak liked"}
+            UpdateExpression="SET likes = if_not_exists(likes, :zero) + :inc, liked_by = :liked_by",
+            ExpressionAttributeValues={":inc": 1, ":zero": 0, ":liked_by": liked_by}
+    )
