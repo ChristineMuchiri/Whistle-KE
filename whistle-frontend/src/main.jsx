@@ -1,12 +1,12 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import { Amplify } from 'aws-amplify';
-import awsExports from './aws-exports';
-import App from './App.jsx'
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import App from './App.jsx'; // root component
 
-Amplify.configure(awsExports);
-
-const root = createRoot(document.getElementById('root'));
-root.render(<App />);
-
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App /> {/* Your app's main component */}
+    </BrowserRouter>
+  </React.StrictMode>
+);

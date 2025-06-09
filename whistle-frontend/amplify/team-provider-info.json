@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-whistlefrontend-dev-f75de-authRole",
+      "UnauthRoleArn": "arn:aws:iam::025066266149:role/amplify-whistlefrontend-dev-f75de-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::025066266149:role/amplify-whistlefrontend-dev-f75de-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-whistlefrontend-dev-f75de-deployment",
+      "UnauthRoleName": "amplify-whistlefrontend-dev-f75de-unauthRole",
+      "StackName": "amplify-whistlefrontend-dev-f75de",
+      "StackId": "arn:aws:cloudformation:us-east-1:025066266149:stack/amplify-whistlefrontend-dev-f75de/d8f9df60-4506-11f0-b7a4-1267b9c4bdf9",
+      "AmplifyAppId": "d17im4y9t4fove"
+    }
+  }
+}
