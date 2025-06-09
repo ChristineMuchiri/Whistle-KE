@@ -1,0 +1,101 @@
+/* DARK WEB / CYBERPUNK THEME */
+.landing-page {
+  position: relative;
+  height: 100vh;
+  background: #000;
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.cyberpunk-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(0deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+    url('https://i.imgur.com/9q3qQ9a.jpg') no-repeat center center;
+  background-size: cover;
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  padding: 2rem;
+}
+
+.title {
+  font-size: 3.5rem;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px #0f0;
+}
+
+.whistleke {
+  color: #ff00ff;
+  text-shadow: 0 0 15px #ff00ff;
+}
+
+.tagline {
+  font-size: 1.5rem;
+  margin-bottom: 3rem;
+  letter-spacing: 0.2rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.cyber-button {
+  background: transparent;
+  color: #0f0;
+  border: 2px solid #0f0;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-button:hover {
+  background: rgba(0, 255, 0, 0.1);
+  box-shadow: 0 0 10px #0f0;
+}
+
+.cyber-button.secondary {
+  color: #ff00ff;
+  border-color: #ff00ff;
+}
+
+.cyber-button.secondary:hover {
+  background: rgba(255, 0, 255, 0.1);
+  box-shadow: 0 0 10px #ff00ff;
+}
+
+/* GLITCH EFFECT (OPTIONAL) */
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-5px, 5px); }
+  40% { transform: translate(-5px, -5px); }
+  60% { transform: translate(5px, 5px); }
+  80% { transform: translate(5px, -5px); }
+  100% { transform: translate(0); }
+}
+
+.title:hover {
+  animation: glitch 0.5s linear infinite;
+}

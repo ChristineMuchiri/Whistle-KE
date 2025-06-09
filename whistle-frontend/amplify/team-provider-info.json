@@ -10,6 +10,11 @@
       "StackName": "amplify-whistlefrontend-dev-f75de",
       "StackId": "arn:aws:cloudformation:us-east-1:025066266149:stack/amplify-whistlefrontend-dev-f75de/d8f9df60-4506-11f0-b7a4-1267b9c4bdf9",
       "AmplifyAppId": "d17im4y9t4fove"
+    },
+    "categories": {
+      "auth": {
+        "whistlefrontend85d02770": {}
+      }
     }
   }
 }
