@@ -3,8 +3,9 @@ export type AmplifyDependentResourcesAttributes = {
     "whistlefrontend85d02770": {
       "AppClientID": "string",
       "AppClientIDWeb": "string",
-      "IdentityPoolId": "string",
-      "IdentityPoolName": "string",
+      "CreatedSNSRole": "string",
+      "HostedUIDomain": "string",
+      "OAuthMetadata": "string",
       "UserPoolArn": "string",
       "UserPoolId": "string",
       "UserPoolName": "string"

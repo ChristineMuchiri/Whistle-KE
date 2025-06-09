@@ -13,7 +13,8 @@
     },
     "categories": {
       "auth": {
-        "whistlefrontend85d02770": {}
+        "whistlefrontend85d02770": {},
+        "userPoolGroups": {}
       }
     }
   }

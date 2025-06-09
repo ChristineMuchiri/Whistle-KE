@@ -1,51 +1,40 @@
 import React from 'react';
 import { Amplify } from 'aws-amplify';
-import { Authenticator } from '@aws-amplify/ui-react';
+import { Button, View, Heading, Text } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import awsExports from '../aws-exports';
+import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
 
 Amplify.configure(awsExports);
 
 function LandingPage() {
+    const navigate = useNavigate();
   return (
-      <div className='landing-page'>
-          <div className='cyberpunk-overlay'></div>
-          <div className='content'>
-             <h1 className='title'>Welcome to <span className='whistleke'>WhistleKE</span>
-              </h1> 
-              <p className='tagline'>Speak Truth. Stay anonymous</p>
+      <View
+      height="100vh"
+      backgroundColor="#0d0d0d"
+      color="white"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      flexDirection="column"
+      gap="2rem"
+    >
+      <Heading level={1} color="white">Welcome to WhistleKE</Heading>
+      <Text fontSize="1.25rem" maxWidth="400px" textAlign="center">
+        Speak truth. Stay anonymous.
+      </Text>
 
-              <div className="button-group">
-                 <Authenticator>
-            {({ signOut, user }) => (
-              <>
-                {!user ? (
-                  <>
-                    <button 
-                      className="cyber-button" 
-                      onClick={() => window.location.href = '/create-alias'}
-                    >
-                      CREATE ALIAS
-                    </button>
-                    <button 
-                      className="cyber-button secondary"
-                      onClick={() => window.location.href = '/login'}
-                    >
-                      LOGIN ALIAS
-                    </button>
-                  </>
-                ) : (
-                  <button className="cyber-button" onClick={signOut}>
-                    SIGN OUT
-                  </button>
-                )}
-              </>
-            )}
-          </Authenticator> 
-              </div>
-          </div>
-    </div>
+      <View display="flex" gap="1rem" marginTop="2rem">
+        <Button variation="primary" onClick={() => navigate('/create-alias')}>
+          Create Alias
+        </Button>
+        <Button variation="link" onClick={() => navigate('/alias')}>
+          Login Alias
+        </Button>
+      </View>
+    </View>
   );
 }
 export default LandingPage;

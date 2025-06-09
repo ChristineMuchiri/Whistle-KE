@@ -1,5 +1,20 @@
 {
   "auth": {
+    "userPoolGroups": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId",
+            "AppClientIDWeb",
+            "AppClientID"
+          ],
+          "category": "auth",
+          "resourceName": "whistlefrontend85d02770"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito-UserPool-Groups"
+    },
     "whistlefrontend85d02770": {
       "customAuth": false,
       "dependsOn": [],
@@ -18,7 +33,7 @@
         "socialProviders": [],
         "usernameAttributes": [],
         "verificationMechanisms": [
-          "EMAIL"
+          "PHONE_NUMBER"
         ]
       },
       "providerPlugin": "awscloudformation",
